@@ -21,4 +21,5 @@
 - `HTML`
 
 ### Визуальный пример:
-![Screenshot_5](https://user-images.githubusercontent.com/28337073/101607808-0c00c280-3a16-11eb-9af5-3af40b500675.png)
+![Screenshot_5](https://user-images.githubusercontent.com/28337073/101617650-f09bb480-3a21-11eb-8681-5383a3d7dcad.png)
+
