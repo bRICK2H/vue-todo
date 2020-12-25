@@ -65,6 +65,9 @@ export default {
 		currCategoryId: 0,
 		isWarningCaret: false,
 		isWarningTempInput: false,
+		currRefInputCategory: '',
+		isDirtyCategory: false,
+		isEditCategory: false,
 
 		iconSave: require("@/assets/img/icons/save.svg"),
 	},
@@ -86,6 +89,7 @@ export default {
 			getters.GET_INIT_SETTINGS_TASK.categoriesId.findIndex(
 				(curr) => curr === id
 			),
+		GET_CURR_REF_INPUT_CATEGORY: state => state.currRefInputCategory,
 
 		GET_IS_CURR_CATEGORY_EDIT: (state) => (id) =>
 			state.categories.find((curr) => curr.id === id).isOptions.isEdit,
@@ -95,6 +99,8 @@ export default {
 			state.categories.some((curr) => curr.isOptions.isEdit),
 		GET_IS_CHECKED_CATEGORIES: (s, getters) => (id) =>
 			getters.GET_INIT_SETTINGS_TASK.categoriesId.includes(id),
+		// GET_IS_DIRTY_CATEGORY: state => state.isDirtyCategory,
+		// GET_IS_SAVE_CATEGORY: state => state.isEditCategory,
 
 		GET_CLASS_OF_WARNING_TEMP_INPUT: (state) => ({
 			"categories-list__temp-input--error": state.isWarningTempInput,
@@ -102,6 +108,8 @@ export default {
 		GET_CLASS_OF_WARNING_CARET: (state) => ({
 			"categories-list__temp-input--caret-error": state.isWarningCaret,
 		}),
+		GET_CLASS_ERROR_OF_DIRTY_CATEGORY: state => state.isDirtyCategory ? 'categories-list__error--dirty' : '',
+		GET_CLASS_ERROR_OF_EDIT_CATEGORY: state => state.isEditCategory ? 'categories-list__error--edit' : '',
 
 		GET_ICON_SAVE: (state) => state.iconSave,
 	},
@@ -111,8 +119,19 @@ export default {
 			state.currCategoryId = id;
 			state.categories.push(options);
 		},
-		SET_NAME_NEW_CATEGORY: (s, { CURR_CATEGORY, categoryName }) =>
-			(CURR_CATEGORY["name"] = categoryName),
+		SET_NAME_NEW_CATEGORY: (state, { CURR_CATEGORY, categoryName, rS }) => {
+			CURR_CATEGORY["name"] = categoryName;
+			const CURR_INDEX = rS.category.findIndex(curr => curr.id === state.currCategoryId);
+
+			console.log(rS.category.findIndex(curr => curr.id === state.currCategoryId));
+			console.log(state.currCategoryId);
+			console.log(rS);
+
+			if (CURR_INDEX !== -1) {
+				vm.$set(rS.category[CURR_INDEX], 'name', categoryName);
+			}
+
+		},
 		ADD_NEW_CATEGORY(state, { index, isOptions }) {
 			for (const key in isOptions) {
 				vm.$set(state.categories[index].isOptions, key, isOptions[key]);
@@ -168,13 +187,24 @@ export default {
 		},
 
 		SET_CLASS_WARNING_CARET: (state, bool) => (state.isWarningCaret = bool),
+		SET_ERROR_INPUT_CATEGORY: (state, { isDirtyCategory, isEditCategory }) => {
+			state.isDirtyCategory = isDirtyCategory;
+			state.isEditCategory = isEditCategory;
+		},
+		SET_CURR_REF_INPUT_CATETORY: (state, ref) => state.currRefInputCategory = ref,
 	},
 	actions: {
 		OPEN_NEW_CATEGORY({ dispatch, commit }, options) {
 			commit("OPEN_NEW_CATEGORY", options);
 			dispatch("SET_NEXT_PAGINATION_LIST_PAGE");
 		},
-		SET_NAME_NEW_CATEGORY: ({ commit, getters, state }, categoryName) => {
+		SET_NAME_NEW_CATEGORY: ({ commit, getters, state, rootState }, categoryName) => {
+			const {
+				todo: {
+					todoModal: { initSettingsTask },
+				},
+			} = rootState;
+
 			const CURR_CATEGORY = getters.GET_CURR_CATEGORY;
 
 			if (CURR_CATEGORY["name"].length > 10) {
@@ -189,7 +219,7 @@ export default {
 				}, 200);
 			}
 
-			commit("SET_NAME_NEW_CATEGORY", { CURR_CATEGORY, categoryName });
+			commit("SET_NAME_NEW_CATEGORY", { CURR_CATEGORY, categoryName, rS: initSettingsTask });
 		},
 		ADD_NEW_CATEGORY({ commit, getters }, { id, isOptions }) {
 			commit("ADD_NEW_CATEGORY", {
@@ -266,5 +296,19 @@ export default {
 				commit("SET_CLASS_WARNING_CARET", false);
 			}, 100);
 		},
+		SET_ERROR_INPUT_CATEGORY: ({ commit, getters }, { isSave } = { isSave: false }) => {
+			commit('SET_ERROR_INPUT_CATEGORY', {
+				isDirtyCategory: !Boolean(getters.GET_NEW_NAME_CATEGORY),
+				isEditCategory: Boolean(getters.GET_NEW_NAME_CATEGORY),
+			});
+
+			if (isSave) {
+				commit('SET_ERROR_INPUT_CATEGORY', {
+					isDirtyCategory: false,
+					isEdit: false,
+				})
+			}
+		},
+		SET_CURR_REF_INPUT_CATETORY: ({ commit }, ref) => commit('SET_CURR_REF_INPUT_CATETORY', ref),
 	},
 };

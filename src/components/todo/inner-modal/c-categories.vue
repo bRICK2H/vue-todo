@@ -76,6 +76,16 @@
 						>
 					</div>
             </div>
+            <div class="categories-list__box-error" 
+                  v-if="category.isOptions.isntName || category.isOptions.isEdit"
+               >
+                  <span class="categories-list__error"
+                     :class="GET_CLASS_ERROR_OF_EDIT_CATEGORY"
+                  >Сохраните категорию!</span>
+                  <span class="categories-list__error"
+                     :class="GET_CLASS_ERROR_OF_DIRTY_CATEGORY"
+                  >Категория не может быть пустой!</span>
+            </div>
 			</li>
 		</transition-group>
 
@@ -130,9 +140,12 @@ export default {
          'GET_IS_CURR_CATEGORY_EDIT',
          'GET_IS_NO_SET_NAME_NEW_CATEGORY',
          'GET_IS_SOME_EDIT_CATEGORY',
+         'GET_IS_WARNING_CARET',
 
          'GET_CLASS_OF_WARNING_TEMP_INPUT',
          'GET_CLASS_OF_WARNING_CARET',
+         'GET_CLASS_ERROR_OF_DIRTY_CATEGORY',
+         'GET_CLASS_ERROR_OF_EDIT_CATEGORY',
          
          'GET_ICON_SAVE',
       ]),
@@ -160,20 +173,25 @@ export default {
          'ADD_NEW_CATEGORY',
          'SET_CHECKED_CATEGORIES_ID',
 			'SET_CATEGORY_ID_TO_DELETE',
-         'SET_CLASS_WARNING_CARET',
          'SET_NAME_NEW_CATEGORY',
-			'SET_CURR_PAGINATION_LIST_PAGE',
+         'SET_CURR_PAGINATION_LIST_PAGE',
+         'SET_CURR_REF_INPUT_CATETORY',
+
+         'SET_CLASS_WARNING_CARET',
+         'SET_ERROR_INPUT_CATEGORY',
       ]),
       selectCategory(id) {
          if (this.GET_IS_CURR_CATEGORY_EDIT(id)) {
             this.$refs['temp-input'][0].focus();
             this.SET_CLASS_WARNING_CARET();
+            this.SET_ERROR_INPUT_CATEGORY();
          }
       },
       openNewCategory() {
-			if (this.GET_IS_NO_SET_NAME_NEW_CATEGORY || this.GET_IS_SOME_EDIT_CATEGORY) {
-				this.$refs['temp-input'][0].focus();
+         if (this.GET_IS_NO_SET_NAME_NEW_CATEGORY || this.GET_IS_SOME_EDIT_CATEGORY) {
+            this.$refs['temp-input'][0].focus();
             this.SET_CLASS_WARNING_CARET();
+            this.SET_ERROR_INPUT_CATEGORY();
             return;
          };
          if (this.GET_PAGINATION_LIST_PER_PAGE > 4) {
@@ -210,16 +228,20 @@ export default {
          });
 
 			this.$nextTick(() => {
-				this.$refs['temp-input'][0].focus();
+            this.$refs['temp-input'][0].focus();
+            this.SET_CURR_REF_INPUT_CATETORY(this.$refs['temp-input'][0]);
 			});
       },
       addCategory(id) {
 			if (!this.GET_NEW_NAME_CATEGORY) {
             this.$refs['temp-input'][0].focus();
-				this.SET_CLASS_WARNING_CARET();
+            this.SET_CLASS_WARNING_CARET();
+            this.SET_ERROR_INPUT_CATEGORY();
+            console.log('add');
 				return;
 			}
 			
+         this.SET_ERROR_INPUT_CATEGORY({ isSave: true });
 			this.isEditCategory = false;
          this.ADD_NEW_CATEGORY({
             id,
@@ -235,6 +257,7 @@ export default {
          if (this.GET_IS_NO_SET_NAME_NEW_CATEGORY) {
             this.$refs['temp-input'][0].focus();
             this.SET_CLASS_WARNING_CARET();
+            this.SET_ERROR_INPUT_CATEGORY();
             return;
 			}
 			this.isEditCategory = true;
@@ -250,7 +273,9 @@ export default {
          })
       },
       deleteCategory(categoryId, isModal) {
+         console.log('delete');
 			if (this.isEditCategory) {
+            console.log('this.isEditCategory: ', this.isEditCategory)
 				this.addCategory(categoryId);
 				return;
 			};
@@ -328,6 +353,7 @@ export default {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+      position: relative;
 		margin: .3rem 0;
 		padding: .6rem 0;
 
@@ -427,6 +453,30 @@ export default {
 			width: 9rem;
 			font-size: 1.4rem;
 		}
+   }
+   &__box-error {
+      width: 100%;
+      text-align: center;
+      position: absolute;
+      bottom: -2rem;
+   }
+   &__error {
+      font-size: 1.2rem;
+      color: tomato;
+      display: none;
+
+      &--dirty, &--edit {
+         display: block;
+         animation: show-category-error .2s forwards;
+
+         @keyframes show-category-error {
+            33% { transform: translateX(-3rem); }
+				66% { transform: translateX(1rem); }
+				100% { transform: translateX(-1rem); }
+				100% { transform: translateX(0); }
+         }
+      }
+      
    }
 	&__container-icon {
 		display: flex;

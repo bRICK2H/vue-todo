@@ -41,6 +41,9 @@ export default {
 			'GET_LINK_CARET_TITLE',
          'GET_CHECKED_PRIORITY_TYPE',
 			'GET_IS_ERROR_TITLE',
+			'GET_CURR_REF_INPUT_CATEGORY',
+			'GET_IS_NO_SET_NAME_NEW_CATEGORY',
+			'GET_IS_SOME_EDIT_CATEGORY',
 		]),
 		...mapGetters('todoTask', [
 			'GET_SCENARIO_EXECUTION_MODAL',
@@ -60,8 +63,16 @@ export default {
 			'SET_LOCALE',
 			'DELEGATE_TO_UPDATE_COMPLETED_TASK',
 			'DELEGATE_TO_CREATE_NEW_TASK',
+			'SET_CLASS_WARNING_CARET',
+			'SET_ERROR_INPUT_CATEGORY',
 		]),
 		dynamicMethod({ methodName }) {
+			if (this.GET_IS_NO_SET_NAME_NEW_CATEGORY || this.GET_IS_SOME_EDIT_CATEGORY) {
+				this.GET_CURR_REF_INPUT_CATEGORY.focus();
+				this.SET_CLASS_WARNING_CARET();
+				this.SET_ERROR_INPUT_CATEGORY();
+				return;
+			}
 			if (this.GET_IS_ERROR_TITLE) {
 				this.GET_LINK_CARET_TITLE.focus();
 				return;
