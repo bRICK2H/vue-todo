@@ -237,7 +237,6 @@ export default {
             this.$refs['temp-input'][0].focus();
             this.SET_CLASS_WARNING_CARET();
             this.SET_ERROR_INPUT_CATEGORY();
-            console.log('add');
 				return;
 			}
 			
@@ -273,9 +272,7 @@ export default {
          })
       },
       deleteCategory(categoryId, isModal) {
-         console.log('delete');
 			if (this.isEditCategory) {
-            console.log('this.isEditCategory: ', this.isEditCategory)
 				this.addCategory(categoryId);
 				return;
 			};

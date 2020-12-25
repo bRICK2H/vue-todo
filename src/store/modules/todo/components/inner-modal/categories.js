@@ -123,10 +123,6 @@ export default {
 			CURR_CATEGORY["name"] = categoryName;
 			const CURR_INDEX = rS.category.findIndex(curr => curr.id === state.currCategoryId);
 
-			console.log(rS.category.findIndex(curr => curr.id === state.currCategoryId));
-			console.log(state.currCategoryId);
-			console.log(rS);
-
 			if (CURR_INDEX !== -1) {
 				vm.$set(rS.category[CURR_INDEX], 'name', categoryName);
 			}
